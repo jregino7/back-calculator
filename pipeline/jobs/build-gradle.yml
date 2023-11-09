@@ -1,0 +1,55 @@
+jobs:
+- job: 'build_java_gradle'
+  displayName: Build
+  dependsOn: semantic_version
+  #pool:
+    #name: 'Azure Pipelines'
+    #Vmimage: ubuntu-20.04  
+  steps:
+  - task: JavaToolInstaller@0
+    displayName: 'Use Java 17'
+    inputs:
+      versionSpec: '17'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
+
+  - task: SonarCloudPrepare@1
+    displayName: 'SonarCloud Prepare'
+    inputs:
+      SonarCloud: 'sonar-jorger'
+      organization: "quind"
+      scannerMode: "Other"
+      extraProperties: |
+        sonar.projectKey=$(Build.Repository.Name)
+        sonar.projectName=$(Build.Repository.Name)
+
+  - task: Gradle@2
+    displayName: 'Build Project'
+    inputs:
+      gradleWrapperFile: 'gradlew'
+      tasks: 'build'
+      publishJUnitResults: true
+      testResultsFiles: '**/TEST-*.xml'
+      testRunTitle: 'UnitTests Results'
+      javaHomeOption: 'JDKVersion'
+      sonarQubeRunAnalysis: true
+      sqGradlePluginVersionChoice: 'specify'
+      sonarQubeGradlePluginVersion: '3.3'
+      spotBugsAnalysis: false
+
+  - task: SonarCloudPublish@1
+    displayName: 'SonarCloud Publish'
+    inputs:
+      pollingTimeoutSec: "300"
+
+  - task: sonarcloud-buildbreaker@2
+    displayName: Quality Gate Validation
+    inputs:
+      SonarCloud: "sonar-jorger"
+      organization: "quind"
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Build Artifacts'
+    inputs:
+      ArtifactName: 'build'
+      PathtoPublish: '$(System.DefaultWorkingDirectory)/build'

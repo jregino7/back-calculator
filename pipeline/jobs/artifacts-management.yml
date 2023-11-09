@@ -1,0 +1,18 @@
+jobs:
+- job: 'artifacts_management'
+  displayName: 'Artifacts Management'
+  steps:
+  - checkout: self
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download Artifact'
+    inputs:
+        artifactName: build
+        downloadPath: $(System.DefaultWorkingDirectory)
+  - task: Docker@2
+    displayName: Build and push an image
+    inputs:
+      command: buildAndPush
+      containerRegistry: $(dockerRegistry)
+      repository: $(imageName)
+      dockerfile: $(System.DefaultWorkingDirectory)/Dockerfile
+      tags: 1.0.0

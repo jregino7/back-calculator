@@ -1,0 +1,28 @@
+trigger: none
+pool:
+  name: "Azure Pipelines"
+  VmImage: Ubuntu-20.04
+
+variables:
+  - template: variables.yml
+
+stages:
+- stage: build_gradle
+  displayName: Gradle building and sonar analysis
+  dependsOn: []
+  jobs:
+    - template: jobs/semantic-version-job.yml
+    - template: jobs/build-gradle.yml
+
+- stage: artifacts_management
+  displayName: Artifacts Management
+  dependsOn: build_gradle
+  condition: in(dependencies.build_gradle.result, 'Succeeded', 'SucceededWithIssues')
+  jobs:
+    - template: jobs/artifacts-management.yml
+
+- stage: ecosystem_integration
+  displayName: Ecosystem Integration
+  condition: in(dependencies.artifacts_management.result, 'Succeeded', 'SucceededWithIssues')
+  jobs:
+    - template: jobs/ecosystem-integration.yml

@@ -1,0 +1,25 @@
+jobs:
+- job: 'semantic_version'
+  displayName: 'Semantic Version'
+  dependsOn: []
+  pool:
+    name: 'Azure Pipelines'
+    VmImage: ubuntu-20.04
+  steps:
+  - checkout: self
+    fetchDepth: 0
+  
+  - task: gitversion/setup@0
+    displayName: Install GitVersion
+    inputs:
+      versionSpec: '5.8.2'
+
+
+  - task: gitversion/execute@0
+    displayName: 'Generate Semantic Version'
+    inputs:
+      useConfigFile: true
+      configFilePath: '$(System.DefaultWorkingDirectory)/general/GitVersion.yml'
+      targetPath: '$(Build.SourcesDirectory)'
+
+      
