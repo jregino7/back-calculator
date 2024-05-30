@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: calculator-back
+  namespace: namespace-jorge
+spec:
+  selector:
+    app: app-calculator-back
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: http
+  type: LoadBalancer

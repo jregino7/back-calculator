@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calculator-back
+  namespace: namespace-jorge
+spec:
+  selector:
+    matchLabels:
+      app: app-calculator-back
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: app-calculator-back
+    spec:
+      containers:
+      - name: app-calculator-back
+        image:  "acrjorgereg.azurecr.io/img-back-calculator:1.0.0"
+        ports:
+          - name: http
+            containerPort: 8080   
+        imagePullPolicy: Always    
+      imagePullSecrets:
+        - name: mysecretk
